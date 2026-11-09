@@ -61,6 +61,8 @@ h2 { font-weight: 800; font-stretch: 112%; font-size: clamp(30px, 4vw, 42px); li
 .facts span { color: var(--steel); }
 
 .contact { font-size: 22px; font-weight: 700; margin: 20px 0 6px; }
+.phones { font-size: 19px; font-weight: 600; margin: 0 0 14px; }
+.phones a { color: var(--ink); text-decoration: none; }
 .muted { color: var(--steel); }
 .small { font-size: 14px; margin: 0; }
 .form { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 14px; }
