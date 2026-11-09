@@ -123,6 +123,10 @@ h2 { font-weight: 800; font-stretch: 114%; font-size: clamp(32px, 4.4vw, 48px); 
 .form input:focus, .form textarea:focus { outline: none; border-color: var(--a1); box-shadow: 0 0 0 4px color-mix(in srgb, var(--a1) 15%, transparent); }
 .form .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
 .form .check input { width: 18px; height: 18px; margin-top: 3px; flex: none; accent-color: var(--a1); }
+.form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form .danke { padding: 28px 4px; text-align: center; }
+.form .danke h3 { margin: 0 0 6px; font-size: 22px; }
+.form button[disabled] { opacity: .6; cursor: wait; }
 
 /* Footer */
 .foot { padding: 34px 0 44px; color: var(--dim); font-size: 15px; border-top: 1px solid var(--line); }

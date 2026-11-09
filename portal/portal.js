@@ -180,9 +180,10 @@ function zeigeNeuesPasswort() {
 const TABS = {
   freelancer: [["auftraege", "Aufträge"], ["einsaetze", "Meine Einsätze"], ["bewerbungen", "Meine Bewerbungen"], ["profil", "Profil"]],
   auftraggeber: [["projekte", "Meine Projekte"], ["neu", "Projekt anfragen"], ["profil", "Profil"]],
-  admin: [["a_pruefung", "Prüfungen"], ["a_projekte", "Projekte"], ["a_bewerbungen", "Bewerbungen"], ["a_pool", "Freelancer"], ["a_firmen", "Firmen"], ["a_konten", "Konten"], ["neu", "Projekt anlegen"], ["profil", "Profil"]]
+  admin: [["a_anfragen", "Anfragen"], ["a_pruefung", "Prüfungen"], ["a_projekte", "Projekte"], ["a_bewerbungen", "Bewerbungen"], ["a_pool", "Freelancer"], ["a_firmen", "Firmen"], ["a_konten", "Konten"], ["neu", "Projekt anlegen"], ["profil", "Profil"]]
 };
 let aktiverTab = null;
+const OFFICE_URL = "https://claude.ai/artifact/4ke17g9d1hHwtcXeYR3gq1";
 
 function dashboard() {
   const tabs = TABS[profil.rolle];
@@ -192,11 +193,12 @@ function dashboard() {
     tabs.map(([id, name]) => h("button", { role: "tab", "aria-selected": String(id === aktiverTab), onclick: () => { aktiverTab = id; dashboard(); } }, name)));
   const gruss = new Date().getHours() < 11 ? "Guten Morgen" : new Date().getHours() < 18 ? "Guten Tag" : "Guten Abend";
   app.replaceChildren(h("div", { class: "dash-head" },
-    h("div", {}, h("p", { class: "kicker grad-text" }, rolleName(profil.rolle)), h("h1", {}, gruss + (profil.name ? ", " + profil.name.split(" ")[0] : "") + "."))),
+    h("div", {}, h("p", { class: "kicker grad-text" }, rolleName(profil.rolle)), h("h1", {}, gruss + (profil.name ? ", " + profil.name.split(" ")[0] : "") + ".")),
+    profil.rolle === "admin" && h("a", { class: "btn btn-ghost", href: OFFICE_URL, target: "_blank", rel: "noopener" }, "Virexo Office öffnen ↗")),
     nav, panel);
   const fn = { auftraege, einsaetze, bewerbungen, profil: profilTab, projekte, neu: neuesProjekt,
     a_projekte: adminProjekte, a_bewerbungen: adminBewerbungen, a_pool: adminPool, a_konten: adminKonten,
-    a_pruefung: adminPruefung, a_firmen: adminFirmen }[aktiverTab];
+    a_pruefung: adminPruefung, a_firmen: adminFirmen, a_anfragen: adminAnfragen }[aktiverTab];
   panel.append(h("p", { class: "muted" }, "Lädt …"));
   fn(panel).catch(() => { panel.replaceChildren(h("div", { class: "empty" }, "Daten konnten nicht geladen werden.")); });
 }
@@ -616,4 +618,36 @@ async function adminFirmen(panel) {
   };
   fi.addEventListener("input", render); render();
   panel.replaceChildren(h("h2", {}, "Firmen (" + rows.length + ")"), h("div", { class: "filter" }, fi), list);
+}
+
+/* ---------- Kontaktanfragen von der Website ---------- */
+const ANFRAGE_STATUS = { neu: "Neu", in_bearbeitung: "In Bearbeitung", uebernommen: "Ins Office übernommen", erledigt: "Erledigt", spam: "Spam" };
+const ANFRAGE_CLS = { neu: "offen", in_bearbeitung: "laufend", uebernommen: "freigegeben", erledigt: "", spam: "abgelehnt" };
+let anfrageFilter = "offen";
+async function adminAnfragen(panel) {
+  const rows = await q(sb.from("anfragen").select("*").order("erstellt", { ascending: false }).limit(300));
+  const offen = (a) => a.status === "neu" || a.status === "in_bearbeitung";
+  const filter = h("div", { class: "seg", style: "max-width:420px;margin-bottom:16px" },
+    [["offen", "Offen"], ["alle", "Alle"], ["spam", "Spam"]].map(([k, t]) =>
+      h("button", { type: "button", "aria-pressed": String(anfrageFilter === k), onclick: () => { anfrageFilter = k; adminAnfragen(panel); } }, t)));
+  const sicht = rows.filter((a) => anfrageFilter === "alle" ? a.status !== "spam" : anfrageFilter === "spam" ? a.status === "spam" : offen(a));
+  const setz = async (a, status) => { await q(sb.from("anfragen").update({ status }).eq("id", a.id)); toast(ANFRAGE_STATUS[status]); adminAnfragen(panel); };
+  const karten = sicht.map((a) => {
+    const mail = "mailto:" + encodeURIComponent(a.email) + "?subject=" + encodeURIComponent("Ihre Anfrage bei der Virexo Group");
+    return h("article", { class: "item" },
+      h("div", { class: "item-head" }, h("h3", {}, a.name + (a.firma ? " · " + a.firma : "")),
+        h("span", { class: "badge s-" + (ANFRAGE_CLS[a.status] || "") }, ANFRAGE_STATUS[a.status] || a.status)),
+      h("div", { class: "meta" }, h("span", {}, new Date(a.erstellt).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })),
+        h("a", { href: mail }, a.email), a.telefon && h("a", { href: "tel:" + a.telefon.replace(/[^+\d]/g, "") }, a.telefon)),
+      h("p", {}, a.nachricht),
+      h("div", { class: "actions" },
+        h("a", { class: "btn btn-xs", href: mail }, "Antworten"),
+        a.status === "neu" && h("button", { class: "btn btn-ghost btn-xs", onclick: () => setz(a, "in_bearbeitung") }, "In Bearbeitung"),
+        offen(a) && h("button", { class: "btn btn-ghost btn-xs", onclick: () => setz(a, "erledigt") }, "Erledigt"),
+        a.status !== "spam" && h("button", { class: "btn btn-ghost btn-xs", onclick: () => setz(a, "spam") }, "Spam"),
+        !offen(a) && h("button", { class: "btn btn-ghost btn-xs", onclick: () => setz(a, "neu") }, "Wieder öffnen")));
+  });
+  panel.replaceChildren(h("h2", {}, "Kontaktanfragen (" + rows.filter(offen).length + " offen)"),
+    h("p", { class: "hint", style: "margin-bottom:14px" }, "Anfragen aus dem Kontaktformular der Website. Im Virexo Office kannst du sie mit einem Klick als Lead übernehmen."),
+    filter, karten.length ? h("div", { class: "list" }, karten) : leer(anfrageFilter === "offen" ? "Keine offenen Anfragen." : "Keine Anfragen."));
 }

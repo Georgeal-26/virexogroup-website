@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232ee6c5'/%3E%3Cstop offset='1' stop-color='%237c6cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='10' fill='url(%23g)'/%3E%3Cpath d='M11 12l9 17 9-17' fill='none' stroke='%2307090d' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=9">
 <script>document.documentElement.classList.add("js");</script>
 <script type="application/ld+json">
 {
@@ -268,11 +268,13 @@
       <form id="form" class="form reveal">
         <label>Name<input name="name" required autocomplete="name"></label>
         <label>E-Mail<input name="email" type="email" required autocomplete="email"></label>
-        <label>Firma (optional)<input name="firma" autocomplete="organization"></label>
-        <label>Ihre Nachricht<textarea name="nachricht" rows="5" required></textarea></label>
+        <label>Firma (optional)<input name="firma" autocomplete="organization" maxlength="160"></label>
+        <label>Telefon (optional)<input name="telefon" type="tel" autocomplete="tel" maxlength="60"></label>
+        <label>Ihre Nachricht<textarea name="nachricht" rows="5" required maxlength="5000"></textarea></label>
+        <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
         <label class="check"><input type="checkbox" required> <span>Ich habe die <a href="datenschutz.html">Datenschutzerklärung</a> gelesen.</span></label>
-        <button class="btn" type="submit">Nachricht senden</button>
-        <p class="muted small">Beim Absenden öffnet sich Ihr E-Mail-Programm mit der fertigen Nachricht.</p>
+        <button class="btn" type="submit" id="formBtn">Nachricht senden</button>
+        <p class="muted small" id="formStatus" role="status">Wir melden uns in der Regel innerhalb eines Werktags.</p>
       </form>
     </div>
   </section>
@@ -316,12 +318,38 @@ if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: re
 }
 
 // Kontaktformular
-document.getElementById("form").addEventListener("submit", function (e) {
-  e.preventDefault();
-  var f = new FormData(this);
+var SB_URL = "https://jxpgyeafjzuhibzkrsjk.supabase.co", SB_KEY = "sb_publishable_6SWAoVkQYQx4E8n1Jv2lnQ_LMh4syLJ";
+var form = document.getElementById("form"), formBtn = document.getElementById("formBtn"), formStatus = document.getElementById("formStatus");
+function perMail(f) {
   var betreff = "Anfrage über die Website von " + f.get("name");
-  var text = "Name: " + f.get("name") + "\nE-Mail: " + f.get("email") + "\nFirma: " + (f.get("firma") || "-") + "\n\n" + f.get("nachricht");
+  var text = "Name: " + f.get("name") + "\nE-Mail: " + f.get("email") + "\nFirma: " + (f.get("firma") || "-") + "\nTelefon: " + (f.get("telefon") || "-") + "\n\n" + f.get("nachricht");
   location.href = "mailto:info@virexogroup.com?subject=" + encodeURIComponent(betreff) + "&body=" + encodeURIComponent(text);
+}
+function fertig() {
+  form.replaceChildren();
+  var d = document.createElement("div"); d.className = "danke";
+  var h = document.createElement("h3"); h.textContent = "Danke, Ihre Nachricht ist angekommen.";
+  var p = document.createElement("p"); p.className = "muted"; p.textContent = "Wir melden uns in der Regel innerhalb eines Werktags bei Ihnen.";
+  d.append(h, p); form.append(d);
+}
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  var f = new FormData(form);
+  if (f.get("website")) { fertig(); return; }
+  formBtn.disabled = true; formStatus.textContent = "Wird gesendet …";
+  fetch(SB_URL + "/rest/v1/anfragen", {
+    method: "POST",
+    headers: { apikey: SB_KEY, Authorization: "Bearer " + SB_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ name: String(f.get("name")).trim(), email: String(f.get("email")).trim(), firma: String(f.get("firma") || "").trim(),
+      telefon: String(f.get("telefon") || "").trim(), nachricht: String(f.get("nachricht")).trim() })
+  }).then(function (r) {
+    if (!r.ok) throw new Error(r.status);
+    fertig();
+  }).catch(function () {
+    formBtn.disabled = false;
+    formStatus.textContent = "Das Senden hat nicht geklappt. Ihr E-Mail-Programm öffnet sich mit der fertigen Nachricht.";
+    perMail(f);
+  });
 });
 </script>
 </body>
