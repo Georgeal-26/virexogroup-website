@@ -56,3 +56,19 @@
 
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--panel-2); border: 1px solid var(--line-2); color: var(--ink); padding: 12px 18px; border-radius: 12px; font-size: 15px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50; max-width: calc(100% - 32px); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Verifizierung */
+.profil-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 960px) { .profil-grid { grid-template-columns: 1fr; } }
+.profil-side { display: grid; gap: 16px; }
+.verif { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 12px; }
+.verif .inline-form { align-items: stretch; }
+.verif .inline-form label { flex: 1 1 200px; }
+.verif .inline-form input[type=file] { padding: 7px; }
+.meter { height: 8px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--grad); border-radius: 999px; transition: width .3s; }
+.banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 16px 18px; margin-bottom: 18px; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--a2) 45%, transparent); background: color-mix(in srgb, var(--a2) 10%, var(--panel)); }
+.banner span { color: var(--steel); flex: 1 1 280px; }
+.banner-note { background: #3a1d1b; color: #ffb3a8 !important; padding: 10px 14px; border-radius: 10px; }
+.form h3 { margin-bottom: 0; }

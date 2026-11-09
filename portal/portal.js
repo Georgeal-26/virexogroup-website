@@ -180,7 +180,7 @@ function zeigeNeuesPasswort() {
 const TABS = {
   freelancer: [["auftraege", "Aufträge"], ["einsaetze", "Meine Einsätze"], ["bewerbungen", "Meine Bewerbungen"], ["profil", "Profil"]],
   auftraggeber: [["projekte", "Meine Projekte"], ["neu", "Projekt anfragen"], ["profil", "Profil"]],
-  admin: [["a_projekte", "Projekte"], ["a_bewerbungen", "Bewerbungen"], ["a_pool", "Freelancer-Pool"], ["a_konten", "Konten"], ["neu", "Projekt anlegen"], ["profil", "Profil"]]
+  admin: [["a_pruefung", "Prüfungen"], ["a_projekte", "Projekte"], ["a_bewerbungen", "Bewerbungen"], ["a_pool", "Freelancer"], ["a_firmen", "Firmen"], ["a_konten", "Konten"], ["neu", "Projekt anlegen"], ["profil", "Profil"]]
 };
 let aktiverTab = null;
 
@@ -195,11 +195,50 @@ function dashboard() {
     h("div", {}, h("p", { class: "kicker grad-text" }, rolleName(profil.rolle)), h("h1", {}, gruss + (profil.name ? ", " + profil.name.split(" ")[0] : "") + "."))),
     nav, panel);
   const fn = { auftraege, einsaetze, bewerbungen, profil: profilTab, projekte, neu: neuesProjekt,
-    a_projekte: adminProjekte, a_bewerbungen: adminBewerbungen, a_pool: adminPool, a_konten: adminKonten }[aktiverTab];
+    a_projekte: adminProjekte, a_bewerbungen: adminBewerbungen, a_pool: adminPool, a_konten: adminKonten,
+    a_pruefung: adminPruefung, a_firmen: adminFirmen }[aktiverTab];
   panel.append(h("p", { class: "muted" }, "Lädt …"));
   fn(panel).catch(() => { panel.replaceChildren(h("div", { class: "empty" }, "Daten konnten nicht geladen werden.")); });
 }
 const leer = (t) => h("div", { class: "empty" }, t);
+
+/* ---------- Verifizierung ---------- */
+const DOKS = {
+  freelancer: [["gewerbe", "Gewerbeanmeldung", true], ["ausweis", "Personalausweis / Reisepass", true],
+    ["zertifikat", "Zertifikat / Schulungsnachweis", false], ["haftpflicht", "Betriebshaftpflicht", false]],
+  auftraggeber: [["firmennachweis", "Gewerbeanmeldung oder Handelsregisterauszug", true], ["sonstiges", "Sonstiger Nachweis", false]]
+};
+const PFLICHT = {
+  freelancer: [["name", "Name"], ["telefon", "Telefon"], ["region", "Region / Einsatzgebiet"], ["skills", "Skills"]],
+  auftraggeber: [["firma", "Firmenname"], ["name", "Ansprechpartner"], ["telefon", "Telefon"], ["strasse", "Straße"],
+    ["plz", "PLZ"], ["ort", "Ort"], ["ust_hr", "USt-IdNr. oder Handelsregister"]]
+};
+const istVerifiziert = (p) => p.rolle === "admin" || p.verifizierung === "verifiziert";
+function fehlendeFelder(p) {
+  return (PFLICHT[p.rolle] || []).filter(([k]) => k === "skills" ? !(p.skills || []).length
+    : k === "ust_hr" ? !(p.ust_id || p.handelsregister) : !String(p[k] || "").trim()).map((x) => x[1]);
+}
+const dokTyp = (name) => name.split("__")[0];
+const dokName = (rolle, typ) => ((DOKS[rolle] || []).find((d) => d[0] === typ) || [, typ])[1];
+async function dokumente(uid) {
+  const { data, error } = await sb.storage.from("nachweise").list(uid, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+  return error ? [] : (data || []).filter((f) => f.name && !f.name.startsWith("."));
+}
+async function dokOeffnen(pfad) {
+  const { data, error } = await sb.storage.from("nachweise").createSignedUrl(pfad, 120);
+  if (error) return toast(fehler(error));
+  window.open(data.signedUrl, "_blank", "noopener");
+}
+function verifBadge(p) {
+  if (p.rolle === "admin") return null;
+  const t = { verifiziert: "✓ Verifiziert", in_pruefung: "In Prüfung", abgelehnt: "Abgelehnt", offen: "Nicht verifiziert" }[p.verifizierung] || "Nicht verifiziert";
+  const cls = { verifiziert: "freigegeben", in_pruefung: "laufend", abgelehnt: "abgelehnt" }[p.verifizierung] || "";
+  return h("span", { class: "badge s-" + cls }, t);
+}
+function sperrHinweis(text) {
+  return h("div", { class: "banner" }, h("b", {}, "Profil noch nicht verifiziert"), h("span", {}, text),
+    h("button", { class: "btn btn-xs", onclick: () => { aktiverTab = "profil"; dashboard(); } }, "Zum Profil"));
+}
 
 function projektKarte(p, extra) {
   return h("article", { class: "item" },
@@ -217,9 +256,13 @@ async function auftraege(panel) {
     q(sb.from("projekte").select("*").eq("status", "offen").order("erstellt", { ascending: false })),
     q(sb.from("bewerbungen").select("projekt_id").eq("freelancer_id", profil.id))]);
   const beworben = new Set(meine.map((b) => b.projekt_id));
+  const darf = istVerifiziert(profil);
   panel.replaceChildren(h("h2", {}, "Offene Aufträge"),
+    !darf && sperrHinweis(profil.verifizierung === "in_pruefung" ? "Ihre Unterlagen werden gerade geprüft. Danach können Sie sich bewerben."
+      : "Vervollständigen Sie Ihr Profil, laden Sie Ihre Nachweise hoch und reichen Sie es zur Prüfung ein. Danach können Sie sich bewerben."),
     offen.length ? h("div", { class: "list" }, offen.map((p) => {
       if (beworben.has(p.id)) return projektKarte(p, h("div", { class: "actions" }, badge("beworben")));
+      if (!darf) return projektKarte(p);
       const box = h("div", {});
       const btn = h("button", { class: "btn btn-xs", onclick: () => {
         const ta = h("textarea", { rows: 3, placeholder: "Kurze Nachricht: Verfügbarkeit, Erfahrung …", maxlength: 1500, style: "width:100%" });
@@ -287,6 +330,12 @@ async function projekte(panel) {
 }
 
 async function neuesProjekt(panel) {
+  if (!istVerifiziert(profil)) {
+    panel.replaceChildren(h("h2", {}, "Projekt anfragen"), sperrHinweis(profil.verifizierung === "in_pruefung"
+      ? "Wir prüfen gerade Ihr Firmenprofil. Danach können Sie Projekte anfragen."
+      : "Bitte vervollständigen Sie Ihr Firmenprofil, laden Sie einen Firmennachweis hoch und reichen Sie es zur Prüfung ein."));
+    return;
+  }
   const err = h("p", { class: "err" });
   const form = h("form", { class: "form", style: "max-width:720px", onsubmit: async (e) => {
     e.preventDefault(); err.textContent = "";
@@ -315,31 +364,109 @@ async function neuesProjekt(panel) {
 /* ---- Profil (alle) ---- */
 async function profilTab(panel) {
   const p = profil;
-  const istFL = p.rolle === "freelancer";
-  const form = h("form", { class: "form", style: "max-width:720px", onsubmit: async (e) => {
+  const istFL = p.rolle === "freelancer", istAG = p.rolle === "auftraggeber";
+  const inp = (name, attrs) => h("input", Object.assign({ name, value: p[name] ?? "" }, attrs || {}));
+  const form = h("form", { class: "form", onsubmit: async (e) => {
     e.preventDefault();
     const f = new FormData(form);
-    const upd = { name: f.get("name"), firma: f.get("firma"), telefon: f.get("telefon"), region: f.get("region") };
-    if (istFL) Object.assign(upd, { skills: skillsArr(f.get("skills")), verfuegbar_ab: f.get("verfuegbar_ab") || null,
-      tagessatz: f.get("tagessatz") ? Number(f.get("tagessatz")) : null, ueber_mich: f.get("ueber_mich") });
+    const upd = { name: f.get("name"), firma: f.get("firma"), telefon: f.get("telefon"), ueber_mich: f.get("ueber_mich") || "" };
+    if (istFL) Object.assign(upd, { region: f.get("region"), skills: skillsArr(f.get("skills")), verfuegbar_ab: f.get("verfuegbar_ab") || null,
+      tagessatz: f.get("tagessatz") ? Number(f.get("tagessatz")) : null, ust_id: f.get("ust_id") });
+    if (istAG) Object.assign(upd, { strasse: f.get("strasse"), plz: f.get("plz"), ort: f.get("ort"), ust_id: f.get("ust_id"),
+      handelsregister: f.get("handelsregister"), website: f.get("website"), branche: f.get("branche"), mitarbeiter: f.get("mitarbeiter"),
+      region: f.get("ort") });
     const [neu] = await q(sb.from("profiles").update(upd).eq("id", p.id).select());
     profil = neu; toast("Profil gespeichert."); dashboard();
   } },
-    h("p", { class: "hint" }, "Angemeldet als ", h("b", {}, p.email)),
+    h("h3", {}, istAG ? "Firmendaten" : "Persönliche Daten"),
+    h("p", { class: "hint" }, "Angemeldet als ", h("b", {}, p.email), ". Felder mit * sind für die Verifizierung nötig."),
+    istAG && field("Firmenname *", inp("firma", { required: true, maxlength: 160 })),
     h("div", { class: "row2" },
-      field("Name", h("input", { name: "name", value: p.name, required: true, maxlength: 120 })),
-      field("Firma", h("input", { name: "firma", value: p.firma, maxlength: 160 }))),
-    h("div", { class: "row2" },
-      field("Telefon", h("input", { name: "telefon", value: p.telefon, maxlength: 40, autocomplete: "tel" })),
-      field(istFL ? "Region / Einsatzgebiet" : "Standort", h("input", { name: "region", value: p.region, maxlength: 120 }))),
-    istFL && field("Skills (mit Komma trennen)", h("input", { name: "skills", value: (p.skills || []).join(", "), maxlength: 600, placeholder: "Netzwerk, LWL-Spleißen, Windows 11, Access Points, Rack" })),
+      field(istAG ? "Ansprechpartner *" : "Name *", inp("name", { required: true, maxlength: 120, autocomplete: "name" })),
+      field("Telefon *", inp("telefon", { maxlength: 40, autocomplete: "tel" }))),
     istFL && h("div", { class: "row2" },
-      field("Verfügbar ab", h("input", { name: "verfuegbar_ab", type: "date", value: p.verfuegbar_ab || "" })),
-      field("Tagessatz (€, optional)", h("input", { name: "tagessatz", type: "number", min: 0, step: "1", value: p.tagessatz ?? "" }))),
-    istFL && field("Über mich", h("textarea", { name: "ueber_mich", rows: 4, maxlength: 2000 }, p.ueber_mich || "")),
-    h("button", { class: "btn", type: "submit" }, "Speichern"),
-    h("button", { type: "button", class: "linkbtn", onclick: zeigeNeuesPasswort }, "Passwort ändern"));
-  panel.replaceChildren(h("h2", {}, "Mein Profil"), form);
+      field("Firma / Gewerbename (optional)", inp("firma", { maxlength: 160 })),
+      field("Region / Einsatzgebiet *", inp("region", { maxlength: 120, placeholder: "z. B. Dresden + 200 km, bundesweit" }))),
+    istAG && field("Straße und Hausnummer *", inp("strasse", { maxlength: 160, autocomplete: "street-address" })),
+    istAG && h("div", { class: "row2" },
+      field("PLZ *", inp("plz", { maxlength: 10, autocomplete: "postal-code" })),
+      field("Ort *", inp("ort", { maxlength: 120, autocomplete: "address-level2" }))),
+    istAG && h("div", { class: "row2" },
+      field("USt-IdNr. *", inp("ust_id", { maxlength: 20, placeholder: "DE123456789" })),
+      field("oder Handelsregister", inp("handelsregister", { maxlength: 80, placeholder: "z. B. HRB 12345, AG Dresden" }))),
+    istAG && h("div", { class: "row2" },
+      field("Branche", inp("branche", { maxlength: 80, placeholder: "z. B. Einzelhandel, IT-Dienstleister" })),
+      field("Mitarbeiter", h("select", { name: "mitarbeiter" }, ["", "1–9", "10–49", "50–249", "250+"].map((v) => h("option", { value: v, selected: p.mitarbeiter === v }, v || "bitte wählen"))))),
+    istAG && field("Website", inp("website", { type: "url", maxlength: 200, placeholder: "https://…" })),
+    istFL && field("Skills * (mit Komma trennen)", h("input", { name: "skills", value: (p.skills || []).join(", "), maxlength: 600, placeholder: "Netzwerk, LWL-Spleißen, Windows 11, Access Points, Rack" })),
+    istFL && h("div", { class: "row2" },
+      field("Verfügbar ab", inp("verfuegbar_ab", { type: "date" })),
+      field("Tagessatz (€, optional)", inp("tagessatz", { type: "number", min: 0, step: "1" }))),
+    istFL && field("USt-IdNr. (falls vorhanden)", inp("ust_id", { maxlength: 20 })),
+    p.rolle !== "admin" && field(istAG ? "Über die Firma" : "Über mich", h("textarea", { name: "ueber_mich", rows: 4, maxlength: 2000 }, p.ueber_mich || "")),
+    h("div", { class: "actions" }, h("button", { class: "btn", type: "submit" }, "Speichern"),
+      h("button", { type: "button", class: "linkbtn", onclick: zeigeNeuesPasswort }, "Passwort ändern")));
+
+  if (p.rolle === "admin") { panel.replaceChildren(h("h2", {}, "Mein Profil"), form); return; }
+
+  // Nachweise
+  const doks = await dokumente(p.id);
+  const pflichtDoks = DOKS[p.rolle].filter((d) => d[2]);
+  const fehlendeDoks = pflichtDoks.filter((d) => !doks.some((x) => dokTyp(x.name) === d[0])).map((d) => d[1]);
+  const fehlend = fehlendeFelder(p);
+  const gesamt = PFLICHT[p.rolle].length + pflichtDoks.length;
+  const prozent = Math.round(100 * (gesamt - fehlend.length - fehlendeDoks.length) / gesamt);
+
+  const typSel = h("select", {}, DOKS[p.rolle].map(([k, n, pf]) => h("option", { value: k }, n + (pf ? " *" : ""))));
+  const datei = h("input", { type: "file", accept: "application/pdf,image/jpeg,image/png" });
+  const upForm = h("form", { class: "inline-form", onsubmit: async (e) => {
+    e.preventDefault();
+    const file = datei.files[0];
+    if (!file) return toast("Bitte eine Datei auswählen.");
+    if (file.size > 10 * 1024 * 1024) return toast("Die Datei ist größer als 10 MB.");
+    if (!/^(application\/pdf|image\/(jpeg|png))$/.test(file.type)) return toast("Nur PDF, JPG oder PNG.");
+    const ext = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png" }[file.type];
+    await q(sb.storage.from("nachweise").upload(p.id + "/" + typSel.value + "__" + Date.now() + "." + ext, file, { contentType: file.type }));
+    toast("Hochgeladen."); dashboard();
+  } }, field("Art des Nachweises", typSel), field("Datei (PDF, JPG, PNG, max. 10 MB)", datei), h("button", { class: "btn btn-xs", type: "submit" }, "Hochladen"));
+
+  const darfEinreichen = !fehlend.length && !fehlendeDoks.length && ["offen", "abgelehnt"].includes(p.verifizierung);
+  const statusText = {
+    offen: "Füllen Sie alle Pflichtfelder aus, laden Sie die Nachweise hoch und reichen Sie Ihr Profil zur Prüfung ein.",
+    in_pruefung: "Ihre Unterlagen werden geprüft. Wir melden uns in der Regel innerhalb von 1–2 Werktagen.",
+    verifiziert: "Ihr Profil ist verifiziert." + (p.verifiziert_am ? " Seit " + datum(p.verifiziert_am) + "." : ""),
+    abgelehnt: "Ihre Prüfung wurde abgelehnt. Bitte korrigieren Sie die Angaben und reichen Sie erneut ein."
+  }[p.verifizierung];
+
+  const status = h("section", { class: "verif" },
+    h("div", { class: "item-head" }, h("h3", {}, "Verifizierung"), verifBadge(p)),
+    h("p", { class: "muted" }, statusText),
+    p.verifizierung === "abgelehnt" && p.pruef_notiz && h("p", { class: "banner-note" }, "Hinweis von Virexo: " + p.pruef_notiz),
+    p.verifizierung !== "verifiziert" && h("div", {},
+      h("div", { class: "meter", role: "progressbar", "aria-valuenow": prozent, "aria-valuemin": 0, "aria-valuemax": 100 }, h("span", { style: "width:" + prozent + "%" })),
+      h("p", { class: "hint" }, "Profil zu " + prozent + " % vollständig" + ((fehlend.length || fehlendeDoks.length) ? ". Es fehlt: " + fehlend.concat(fehlendeDoks).join(", ") : "."))),
+    darfEinreichen && h("button", { class: "btn", onclick: async () => {
+      const [neu] = await q(sb.from("profiles").update({ verifizierung: "in_pruefung" }).eq("id", p.id).select());
+      profil = neu; toast("Zur Prüfung eingereicht."); dashboard();
+    } }, "Zur Prüfung einreichen"));
+
+  const dokSec = h("section", { class: "verif" },
+    h("h3", {}, "Nachweise"),
+    h("p", { class: "hint" }, istFL ? "Pflicht: Gewerbeanmeldung und Ausweis. Auf dem Ausweis dürfen Sie Foto, Ausweisnummer und Zugangsnummer schwärzen."
+      : "Pflicht: aktuelle Gewerbeanmeldung oder Handelsregisterauszug."),
+    h("p", { class: "hint" }, "Ihre Dokumente sehen nur Sie und die Virexo Group."),
+    upForm,
+    doks.length ? h("div", { class: "sub-list" }, doks.map((d) => h("div", { class: "sub-row" },
+      h("span", {}, h("b", {}, dokName(p.rolle, dokTyp(d.name))), " · " + datum(d.created_at)),
+      h("div", { class: "actions" },
+        h("button", { class: "linkbtn", onclick: () => dokOeffnen(p.id + "/" + d.name) }, "Ansehen"),
+        p.verifizierung !== "in_pruefung" && h("button", { class: "linkbtn", onclick: async () => {
+          if (!confirm("Nachweis löschen?")) return;
+          await q(sb.storage.from("nachweise").remove([p.id + "/" + d.name])); dashboard();
+        } }, "Löschen"))))) : h("p", { class: "muted" }, "Noch keine Nachweise hochgeladen."));
+
+  panel.replaceChildren(h("h2", {}, istAG ? "Firmenprofil" : "Mein Profil"),
+    h("div", { class: "profil-grid" }, form, h("div", { class: "profil-side" }, status, dokSec)));
 }
 
 /* ---- Admin ---- */
@@ -379,10 +506,10 @@ async function adminProjekte(panel) {
 }
 
 async function adminBewerbungen(panel) {
-  const rows = await q(sb.from("bewerbungen").select("*, projekte(titel, ort), profiles(name, email, telefon, region, skills, tagessatz)").order("erstellt", { ascending: false }));
+  const rows = await q(sb.from("bewerbungen").select("*, projekte(titel, ort), profiles(name, email, telefon, region, skills, tagessatz, verifizierung, rolle)").order("erstellt", { ascending: false }));
   panel.replaceChildren(h("h2", {}, "Bewerbungen"),
     rows.length ? h("div", { class: "list" }, rows.map((b) => h("article", { class: "item" },
-      h("div", { class: "item-head" }, h("h3", {}, (b.profiles ? b.profiles.name : "?") + " → " + (b.projekte ? b.projekte.titel : "?")), badge(b.status)),
+      h("div", { class: "item-head" }, h("h3", {}, (b.profiles ? b.profiles.name : "?") + " → " + (b.projekte ? b.projekte.titel : "?")), h("div", { class: "actions" }, b.profiles && verifBadge(b.profiles), badge(b.status))),
       b.profiles && h("div", { class: "meta" }, h("span", {}, b.profiles.email), b.profiles.telefon && h("span", {}, b.profiles.telefon),
         b.profiles.region && h("span", {}, "📍 " + b.profiles.region), b.profiles.tagessatz && h("span", {}, b.profiles.tagessatz + " €/Tag"), h("span", {}, datum(b.erstellt))),
       b.nachricht && h("p", {}, b.nachricht),
@@ -400,13 +527,13 @@ async function adminPool(panel) {
     const words = fi.value.toLowerCase().split(/\s+/).filter(Boolean);
     const r = rows.filter((p) => { const t = JSON.stringify([p.name, p.region, p.skills, p.ueber_mich, p.firma]).toLowerCase(); return words.every((w) => t.includes(w)); });
     list.replaceChildren(...(r.length ? r.map((p) => h("article", { class: "item" },
-      h("div", { class: "item-head" }, h("h3", {}, p.name || "(ohne Namen)"), badge(p.status)),
-      h("div", { class: "meta" }, h("span", {}, p.email), p.telefon && h("span", {}, p.telefon), p.region && h("span", {}, "📍 " + p.region),
-        p.verfuegbar_ab && h("span", {}, "verfügbar ab " + datum(p.verfuegbar_ab)), p.tagessatz && h("span", {}, p.tagessatz + " €/Tag")),
-      p.ueber_mich && h("p", {}, p.ueber_mich), tags(p.skills))) : [leer("Keine Freelancer gefunden.")]));
+      h("div", { class: "item-head" }, h("h3", {}, p.name || "(ohne Namen)"), h("div", { class: "actions" }, verifBadge(p), p.status === "gesperrt" && badge("gesperrt"))),
+      profilDetails(p),
+      (() => { const doks = h("div", {}); const b = h("button", { class: "linkbtn", onclick: async () => { b.remove(); doks.append(await dokListeAdmin(p)); } }, "Nachweise anzeigen"); return [b, doks]; })(),
+      p.verifizierung === "verifiziert" && h("div", { class: "actions" }, h("button", { class: "btn btn-ghost btn-xs", onclick: () => verifSetzen(p, "offen") }, "Verifizierung zurücknehmen")))) : [leer("Keine Freelancer gefunden.")]));
   };
   fi.addEventListener("input", render); render();
-  panel.replaceChildren(h("h2", {}, "Freelancer-Pool (" + rows.length + ")"), h("div", { class: "filter" }, fi), list);
+  panel.replaceChildren(h("h2", {}, "Freelancer (" + rows.length + ")"), h("div", { class: "filter" }, fi), list);
 }
 
 async function adminKonten(panel) {
@@ -418,4 +545,75 @@ async function adminKonten(panel) {
         p.id !== profil.id && (p.status === "gesperrt"
           ? h("button", { class: "btn btn-xs", onclick: async () => { await q(sb.from("profiles").update({ status: "freigegeben" }).eq("id", p.id)); toast("Entsperrt."); dashboard(); } }, "Entsperren")
           : h("button", { class: "btn btn-ghost btn-xs", onclick: async () => { if (!confirm(p.email + " sperren?")) return; await q(sb.from("profiles").update({ status: "gesperrt" }).eq("id", p.id)); toast("Gesperrt."); dashboard(); } }, "Sperren")))))));
+}
+
+function profilDetails(p) {
+  const istAG = p.rolle === "auftraggeber";
+  return [
+    h("div", { class: "meta" }, h("span", {}, p.email), p.telefon && h("span", {}, p.telefon),
+      istAG ? (p.strasse || p.ort) && h("span", {}, "📍 " + [p.strasse, [p.plz, p.ort].filter(Boolean).join(" ")].filter(Boolean).join(", "))
+            : p.region && h("span", {}, "📍 " + p.region),
+      p.ust_id && h("span", {}, "USt-IdNr. " + p.ust_id), p.handelsregister && h("span", {}, p.handelsregister),
+      p.branche && h("span", {}, p.branche), p.mitarbeiter && h("span", {}, p.mitarbeiter + " Mitarbeiter"),
+      safeUrl(p.website) && h("a", { href: p.website, target: "_blank", rel: "noopener" }, p.website.replace(/^https:\/\//, "")),
+      p.tagessatz && h("span", {}, p.tagessatz + " €/Tag"), p.verfuegbar_ab && h("span", {}, "verfügbar ab " + datum(p.verfuegbar_ab)),
+      h("span", {}, "registriert " + datum(p.erstellt))),
+    p.ueber_mich && h("p", {}, p.ueber_mich),
+    tags(p.skills)];
+}
+
+async function dokListeAdmin(p) {
+  const box = h("div", { class: "sub-list" }, h("p", { class: "hint" }, "Nachweise werden geladen …"));
+  dokumente(p.id).then((doks) => box.replaceChildren(...(doks.length ? doks.map((d) => h("div", { class: "sub-row" },
+    h("span", {}, h("b", {}, dokName(p.rolle, dokTyp(d.name))), " · " + datum(d.created_at)),
+    h("button", { class: "btn btn-ghost btn-xs", onclick: () => dokOeffnen(p.id + "/" + d.name) }, "Ansehen")))
+    : [h("p", { class: "hint" }, "Keine Nachweise hochgeladen.")])));
+  return box;
+}
+
+async function verifSetzen(p, status) {
+  let notiz = "";
+  if (status === "abgelehnt") {
+    notiz = prompt("Grund für die Ablehnung (sieht der Nutzer):", "") ;
+    if (notiz === null) return;
+  }
+  await q(sb.from("profiles").update({ verifizierung: status, pruef_notiz: notiz,
+    verifiziert_am: status === "verifiziert" ? new Date().toISOString() : null }).eq("id", p.id));
+  toast(status === "verifiziert" ? "Verifiziert." : status === "abgelehnt" ? "Abgelehnt." : "Zurückgesetzt.");
+  dashboard();
+}
+
+async function adminPruefung(panel) {
+  const rows = await q(sb.from("profiles").select("*").eq("verifizierung", "in_pruefung").order("erstellt"));
+  const karten = await Promise.all(rows.map(async (p) => h("article", { class: "item" },
+    h("div", { class: "item-head" }, h("h3", {}, p.rolle === "auftraggeber" ? (p.firma || "(ohne Firmenname)") + " · " + p.name : p.name),
+      h("span", { class: "badge" }, rolleName(p.rolle))),
+    profilDetails(p),
+    await dokListeAdmin(p),
+    h("div", { class: "actions" },
+      h("button", { class: "btn btn-xs", onclick: () => verifSetzen(p, "verifiziert") }, "✓ Verifizieren"),
+      h("button", { class: "btn btn-ghost btn-xs", onclick: () => verifSetzen(p, "abgelehnt") }, "Ablehnen")))));
+  panel.replaceChildren(h("h2", {}, "Offene Prüfungen (" + rows.length + ")"),
+    h("p", { class: "hint", style: "margin-bottom:14px" }, "Prüfen Sie Angaben und Nachweise. Tipp: USt-IdNr. lässt sich beim Bundeszentralamt für Steuern online bestätigen."),
+    rows.length ? h("div", { class: "list" }, karten) : leer("Keine offenen Prüfungen."));
+}
+
+async function adminFirmen(panel) {
+  const rows = await q(sb.from("profiles").select("*").eq("rolle", "auftraggeber").order("erstellt", { ascending: false }));
+  const fi = h("input", { type: "search", placeholder: "Suchen: Firma, Ort, Branche …" });
+  const list = h("div", { class: "list" });
+  const render = () => {
+    const words = fi.value.toLowerCase().split(/\s+/).filter(Boolean);
+    const r = rows.filter((p) => { const t = JSON.stringify([p.firma, p.name, p.ort, p.branche, p.email]).toLowerCase(); return words.every((w) => t.includes(w)); });
+    list.replaceChildren(...(r.length ? r.map((p) => {
+      const doks = h("div", {});
+      const zeigen = h("button", { class: "linkbtn", onclick: async () => { zeigen.remove(); doks.append(await dokListeAdmin(p)); } }, "Nachweise anzeigen");
+      return h("article", { class: "item" },
+        h("div", { class: "item-head" }, h("h3", {}, (p.firma || "(ohne Firmenname)") + (p.name ? " · " + p.name : "")), verifBadge(p)),
+        profilDetails(p), zeigen, doks,
+        p.verifizierung === "verifiziert" && h("div", { class: "actions" }, h("button", { class: "btn btn-ghost btn-xs", onclick: () => verifSetzen(p, "offen") }, "Verifizierung zurücknehmen")));
+    }) : [leer("Keine Firmen gefunden.")]));
+  };
+  fi.addEventListener("input", render); render();
+  panel.replaceChildren(h("h2", {}, "Firmen (" + rows.length + ")"), h("div", { class: "filter" }, fi), list);
 }
