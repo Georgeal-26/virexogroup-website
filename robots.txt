@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /office/
+Disallow: /intern/
+Sitemap: https://virexogroup.com/sitemap.xml

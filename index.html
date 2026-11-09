@@ -3,13 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Virexo Group · IT-Lösungen aus Dresden</title>
-<meta name="description" content="Virexo Group aus Dresden: IT-Service, Microsoft 365, Netzwerke, Sicherheit und Websites für kleine und mittlere Unternehmen.">
+<title>Virexo Group · Netzwerktechnik &amp; IT-Service aus Dresden</title>
+<meta name="description" content="Virexo IT Solutions aus Dresden, seit 2022: Netzwerkinstallation, strukturierte Verkabelung und LWL, Rack-Aufbau, Access Points, Windows-Rollouts und IT-Support für Unternehmen.">
 <meta name="theme-color" content="#07090d">
+<link rel="canonical" href="https://virexogroup.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Virexo Group">
+<meta property="og:title" content="Virexo Group · Netzwerktechnik &amp; IT-Service aus Dresden">
+<meta property="og:description" content="Netzwerke, Verkabelung, Windows-Rollouts und IT-Support für Unternehmen. Mit Konzern-Erfahrung, sauber dokumentiert.">
+<meta property="og:url" content="https://virexogroup.com/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232ee6c5'/%3E%3Cstop offset='1' stop-color='%237c6cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='10' fill='url(%23g)'/%3E%3Cpath d='M11 12l9 17 9-17' fill='none' stroke='%2307090d' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
+<script>document.documentElement.classList.add("js");</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Virexo Group",
+  "alternateName": "Virexo IT Solutions",
+  "url": "https://virexogroup.com/",
+  "email": "info@virexogroup.com",
+  "telephone": "+49 351 20878332",
+  "foundingDate": "2022",
+  "founder": { "@type": "Person", "name": "George Alslamh" },
+  "address": { "@type": "PostalAddress", "streetAddress": "Schmiedeberger Straße 31", "postalCode": "01277", "addressLocality": "Dresden", "addressRegion": "Sachsen", "addressCountry": "DE" },
+  "areaServed": [{ "@type": "City", "name": "Dresden" }, { "@type": "State", "name": "Sachsen" }, { "@type": "Country", "name": "Deutschland" }],
+  "knowsAbout": ["Netzwerkinstallation", "Strukturierte Verkabelung", "LWL", "Access Points", "Rack-Aufbau", "Windows-Rollout", "IT-Support", "Microsoft 365"]
+}
+</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -22,10 +46,14 @@
       <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="url(#vx-g)"/><path d="M11 12l9 17 9-17" fill="none" stroke="#07090d" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <b>Virexo Group</b>
     </a>
-    <nav aria-label="Hauptmenü">
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="menu" aria-label="Hauptmenü">
       <a href="#leistungen">Leistungen</a>
       <a href="#ablauf">Ablauf</a>
       <a href="#ueber">Über uns</a>
+      <a href="#faq">FAQ</a>
       <a class="btn btn-sm" href="#kontakt">Kontakt</a>
     </nav>
   </div>
@@ -33,91 +61,198 @@
 
 <main id="top">
   <section class="hero">
-    <div class="wrap">
-      <p class="pill"><i></i>Virexo IT Solutions · Dresden · seit 2022</p>
-      <h1>IT, die einfach <span class="grad-text">läuft.</span></h1>
-      <p class="lead">Wir richten ein, betreuen und sichern die IT von kleinen und mittleren Unternehmen. Persönlich, schnell und ohne Fachchinesisch.</p>
-      <div class="cta">
-        <a class="btn" href="#kontakt">Kostenloses Erstgespräch
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn-ghost" href="#leistungen">Unsere Leistungen</a>
+    <div class="wrap hero-in">
+      <div>
+        <p class="pill"><i></i>Virexo IT Solutions · Dresden · seit 2022</p>
+        <h1>IT, die einfach <span class="grad-text">läuft.</span></h1>
+        <p class="lead">Netzwerke, Verkabelung, Windows-Rollouts und IT-Support für Unternehmen. Mit Erfahrung aus Konzernprojekten, sauber dokumentiert und mit einem festen Ansprechpartner.</p>
+        <div class="cta">
+          <a class="btn" href="#kontakt">Kostenloses Erstgespräch
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="#leistungen">Unsere Leistungen</a>
+        </div>
       </div>
-      <div class="stats">
+
+      <figure class="netviz" aria-hidden="true">
+        <svg viewBox="0 0 440 400" fill="none">
+          <!-- Leitungen -->
+          <g class="wires" stroke="#2a3546" stroke-width="2">
+            <path d="M150 170 C 90 170, 70 120, 70 70"/>
+            <path d="M290 170 C 350 170, 370 120, 370 70"/>
+            <path d="M150 250 C 90 250, 70 300, 70 335"/>
+            <path d="M290 250 C 350 250, 370 300, 370 335"/>
+            <path d="M220 140 L 220 60"/>
+          </g>
+          <g class="pulses" stroke="url(#vx-g)" stroke-width="2.5" stroke-linecap="round">
+            <path d="M150 170 C 90 170, 70 120, 70 70"/>
+            <path d="M290 170 C 350 170, 370 120, 370 70"/>
+            <path d="M150 250 C 90 250, 70 300, 70 335"/>
+            <path d="M290 250 C 350 250, 370 300, 370 335"/>
+            <path d="M220 140 L 220 60"/>
+          </g>
+          <!-- Rack -->
+          <rect x="150" y="140" width="140" height="140" rx="14" fill="#0f141c" stroke="#2a3546"/>
+          <g class="units">
+            <rect x="166" y="158" width="108" height="22" rx="5" fill="#131a24" stroke="#1e2633"/>
+            <rect x="166" y="188" width="108" height="22" rx="5" fill="#131a24" stroke="#1e2633"/>
+            <rect x="166" y="218" width="108" height="22" rx="5" fill="#131a24" stroke="#1e2633"/>
+            <rect x="166" y="248" width="108" height="16" rx="5" fill="#131a24" stroke="#1e2633"/>
+          </g>
+          <g class="leds">
+            <circle cx="180" cy="169" r="3" fill="#2ee6c5"/><circle cx="190" cy="169" r="3" fill="#2ee6c5"/><circle cx="200" cy="169" r="3" fill="#7c6cff"/>
+            <circle cx="180" cy="199" r="3" fill="#7c6cff"/><circle cx="190" cy="199" r="3" fill="#2ee6c5"/><circle cx="200" cy="199" r="3" fill="#2ee6c5"/>
+            <circle cx="180" cy="229" r="3" fill="#2ee6c5"/><circle cx="190" cy="229" r="3" fill="#7c6cff"/><circle cx="200" cy="229" r="3" fill="#2ee6c5"/>
+          </g>
+          <g stroke="#2a3546" stroke-width="2"><path d="M222 169h40M222 199h40M222 229h40"/></g>
+          <!-- Knoten -->
+          <g class="node"><circle cx="70" cy="56" r="22" fill="#0f141c" stroke="#2a3546"/><path d="M60 54a14 14 0 0 1 20 0M64 59a8 8 0 0 1 12 0" stroke="#2ee6c5" stroke-width="2.2" stroke-linecap="round"/><circle cx="70" cy="63" r="2" fill="#2ee6c5"/></g>
+          <g class="node"><circle cx="370" cy="56" r="22" fill="#0f141c" stroke="#2a3546"/><path d="M360 54a14 14 0 0 1 20 0M364 59a8 8 0 0 1 12 0" stroke="#a99fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="370" cy="63" r="2" fill="#a99fff"/></g>
+          <g class="node"><circle cx="220" cy="42" r="22" fill="#0f141c" stroke="#2a3546"/><path d="M211 42a9 9 0 0 1 18 0M207 46h26" stroke="url(#vx-g)" stroke-width="2.2" stroke-linecap="round"/></g>
+          <g class="node"><rect x="44" y="330" width="52" height="34" rx="6" fill="#0f141c" stroke="#2a3546"/><path d="M38 372h64" stroke="#2a3546" stroke-width="2.4" stroke-linecap="round"/><rect x="52" y="338" width="36" height="18" rx="3" fill="#131a24"/></g>
+          <g class="node"><rect x="344" y="330" width="52" height="34" rx="6" fill="#0f141c" stroke="#2a3546"/><path d="M338 372h64" stroke="#2a3546" stroke-width="2.4" stroke-linecap="round"/><rect x="352" y="338" width="36" height="18" rx="3" fill="#131a24"/></g>
+          <!-- Labels -->
+          <g font-family="Archivo, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8f9bae" text-anchor="middle">
+            <text x="70" y="98">Access Point</text><text x="370" y="98">Access Point</text>
+            <text x="220" y="304">Rack · Switch</text>
+            <text x="70" y="392">Arbeitsplatz</text><text x="370" y="392">Arbeitsplatz</text>
+          </g>
+        </svg>
+      </figure>
+    </div>
+
+    <div class="wrap">
+      <div class="stats reveal">
         <div><b>Seit 2022</b><span>IT-Partner aus Dresden</span></div>
         <div><b>Persönlich</b><span>ein fester Ansprechpartner</span></div>
-        <div><b>Vor Ort &amp; remote</b><span>in Dresden und Umgebung</span></div>
-        <div><b>Feste Preise</b><span>klare Angebote vorab</span></div>
+        <div><b>Vor Ort &amp; remote</b><span>Sachsen und deutschlandweit</span></div>
+        <div><b>Dokumentiert</b><span>jedes Projekt mit Bericht</span></div>
       </div>
+    </div>
+  </section>
+
+  <section class="branchen" aria-label="Branchenerfahrung">
+    <div class="wrap branchen-in reveal">
+      <span class="branchen-label">Erfahrung aus Projekten in</span>
+      <ul>
+        <li>Einzelhandel</li>
+        <li>Automobilindustrie</li>
+        <li>Industrie &amp; Fertigung</li>
+        <li>Mittelstand</li>
+      </ul>
     </div>
   </section>
 
   <section id="leistungen" class="sec">
     <div class="wrap">
-      <p class="kicker grad-text">Leistungen</p>
-      <h2>Alles aus einer Hand.</h2>
-      <p class="sub">Vom ersten Laptop bis zum kompletten Büronetzwerk. Wir kümmern uns, damit Sie sich auf Ihr Geschäft konzentrieren können.</p>
+      <div class="reveal">
+        <p class="kicker grad-text">Leistungen</p>
+        <h2>Vom Kabel bis zum Arbeitsplatz.</h2>
+        <p class="sub">Wir planen, bauen und betreuen die IT-Infrastruktur Ihres Unternehmens, an einem Standort oder an vielen.</p>
+      </div>
       <div class="grid">
-        <article class="card">
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></span>
-          <h3>IT-Service &amp; Support</h3><p>Hilfe bei Störungen vor Ort und per Fernwartung. Wartung, Updates und Ansprechpartner, die sich auskennen.</p></article>
-        <article class="card">
+        <article class="card reveal">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="8.5" y="14" width="7" height="7" rx="1.5"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg></span>
+          <h3>Netzwerkinstallation</h3><p>Planung und Aufbau von LAN, WLAN und VPN an neuen und bestehenden Standorten, sauber dokumentiert.</p></article>
+        <article class="card reveal">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-6 4-6 8-8s8-2 8-8"/><circle cx="4" cy="20" r="1.5"/><circle cx="20" cy="4" r="1.5"/></svg></span>
+          <h3>Verkabelung &amp; LWL</h3><p>Strukturierte Datenverkabelung und Glasfaser: Spleißen, Messen, Fehleranalyse und Messprotokolle.</p></article>
+        <article class="card reveal">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h8"/></svg></span>
+          <h3>Rack-Aufbau &amp; Access Points</h3><p>Montage von Racks, Switches und aktiven Komponenten. Access Points installieren und konfigurieren.</p></article>
+        <article class="card reveal">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M9 10l2 2 4-4"/></svg></span>
+          <h3>Windows-Rollouts &amp; Migration</h3><p>Rollouts auf Windows 10/11, Umzug von Profilen und Daten, Software- und Treiberverteilung, Abschlussbericht.</p></article>
+        <article class="card reveal">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="6" rx="1.5"/><rect x="17" y="14" width="5" height="6" rx="1.5"/></svg></span>
+          <h3>IT-Support</h3><p>1st- und 2nd-Level-Support vor Ort und remote: Störungen beheben, Anwender unterstützen, auch VIP-Betreuung.</p></article>
+        <article class="card reveal">
           <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 0 0 4.3 12 3.5 3.5 0 0 0 6 19z"/></svg></span>
-          <h3>Microsoft 365</h3><p>Einrichtung von E-Mail, Teams, OneDrive und SharePoint, inklusive Umzug Ihrer bestehenden Daten.</p></article>
-        <article class="card">
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a14.5 14.5 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg></span>
-          <h3>Netzwerk &amp; WLAN</h3><p>Stabile Netzwerke, sicheres WLAN, Drucker und Arbeitsplätze, sauber geplant und dokumentiert.</p></article>
-        <article class="card">
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
-          <h3>Sicherheit &amp; Backup</h3><p>Virenschutz, Datensicherung und Zugriffsrechte, damit Ihre Daten geschützt bleiben.</p></article>
-        <article class="card">
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span>
-          <h3>Hardware &amp; Einrichtung</h3><p>Beratung, Beschaffung und Einrichtung von PCs, Laptops und Servern, einsatzbereit übergeben.</p></article>
-        <article class="card">
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
-          <h3>Websites</h3><p>Moderne, schnelle Firmenwebsites mit eigener Domain, für Handy und Desktop.</p></article>
+          <h3>Microsoft 365 &amp; Arbeitsplätze</h3><p>Office, Outlook, Teams und SharePoint einrichten. Laptops, Drucker und Telefone bereitstellen und inventarisieren.</p></article>
       </div>
     </div>
   </section>
 
   <section id="ablauf" class="sec alt">
     <div class="wrap">
-      <p class="kicker grad-text">Ablauf</p>
-      <h2>So arbeiten wir.</h2>
-      <p class="sub">Vier klare Schritte, ohne Überraschungen.</p>
+      <div class="reveal">
+        <p class="kicker grad-text">Ablauf</p>
+        <h2>So arbeiten wir.</h2>
+        <p class="sub">Vier klare Schritte, ohne Überraschungen.</p>
+      </div>
       <ol class="steps">
-        <li><b>Erstgespräch</b><span>Sie schildern uns Ihre Situation, kostenlos und unverbindlich.</span></li>
-        <li><b>Angebot</b><span>Sie erhalten ein klares Angebot mit festen Preisen.</span></li>
-        <li><b>Umsetzung</b><span>Wir richten alles ein und erklären Ihnen, was wir getan haben.</span></li>
-        <li><b>Betreuung</b><span>Bei Fragen oder Problemen sind wir auch danach für Sie da.</span></li>
+        <li class="reveal"><b>Erstgespräch</b><span>Sie schildern uns Ihre Situation, kostenlos und unverbindlich.</span></li>
+        <li class="reveal"><b>Angebot</b><span>Sie erhalten ein klares, schriftliches Angebot.</span></li>
+        <li class="reveal"><b>Umsetzung</b><span>Wir setzen das Projekt um und dokumentieren jeden Schritt.</span></li>
+        <li class="reveal"><b>Betreuung</b><span>Bei Fragen oder Problemen sind wir auch danach für Sie da.</span></li>
       </ol>
     </div>
   </section>
 
   <section id="ueber" class="sec">
     <div class="wrap">
-      <p class="kicker grad-text">Über uns</p>
-      <h2>Unsere Schwerpunkte.</h2>
-      <p class="sub">Virexo IT Solutions aus Dresden, gegründet 2022: Erfahrung aus Standort- und Rollout-Projekten in Handel, Automobilindustrie und Industrie.</p>
+      <div class="reveal">
+        <p class="kicker grad-text">Über uns</p>
+        <h2>Unsere Schwerpunkte.</h2>
+        <p class="sub">Virexo IT Solutions aus Dresden, gegründet 2022: Erfahrung aus Standort- und Rollout-Projekten in Handel, Automobilindustrie und Industrie.</p>
+      </div>
       <ul class="focus">
-        <li><b>Netzwerkinstallation</b><span>LAN, WAN, WLAN, VPN, TCP/IP, DNS an neuen und bestehenden Standorten</span></li>
-        <li><b>Strukturierte Verkabelung &amp; LWL</b><span>Datenverkabelung, Spleißen, Messung und Fehleranalyse</span></li>
-        <li><b>Rack-Aufbau</b><span>Installation und Umbau aktiver Netzwerkkomponenten</span></li>
-        <li><b>Access Points</b><span>Installation und Konfiguration</span></li>
-        <li><b>Windows-Rollouts &amp; Migration</b><span>Windows 10/11, Benutzerprofile, Daten, Softwareverteilung</span></li>
-        <li><b>IT-Support</b><span>1st &amp; 2nd Level, vor Ort und remote, VIP-Betreuung</span></li>
-        <li><b>Arbeitsplatz &amp; Hardware</b><span>Laptops, Workstations, Drucker, Telefone, Inventarisierung</span></li>
-        <li><b>Microsoft 365</b><span>Office, Outlook, Teams, SharePoint, Ticketsysteme</span></li>
+        <li class="reveal"><b>Netzwerkinstallation</b><span>LAN, WAN, WLAN, VPN, TCP/IP, DNS an neuen und bestehenden Standorten</span></li>
+        <li class="reveal"><b>Strukturierte Verkabelung &amp; LWL</b><span>Datenverkabelung, Spleißen, Messung und Fehleranalyse</span></li>
+        <li class="reveal"><b>Rack-Aufbau</b><span>Installation und Umbau aktiver Netzwerkkomponenten</span></li>
+        <li class="reveal"><b>Access Points</b><span>Installation und Konfiguration</span></li>
+        <li class="reveal"><b>Windows-Rollouts &amp; Migration</b><span>Windows 10/11, Benutzerprofile, Daten, Softwareverteilung</span></li>
+        <li class="reveal"><b>IT-Support</b><span>1st &amp; 2nd Level, vor Ort und remote, VIP-Betreuung</span></li>
+        <li class="reveal"><b>Arbeitsplatz &amp; Hardware</b><span>Laptops, Workstations, Drucker, Telefone, Inventarisierung</span></li>
+        <li class="reveal"><b>Microsoft 365</b><span>Office, Outlook, Teams, SharePoint, Ticketsysteme</span></li>
       </ul>
-      <h3 class="mini">Projekt &amp; Führung</h3>
-      <div class="chips"><span>Teamleitung von Technikern und Dienstleistern</span><span>Planung, Umsetzung und Dokumentation</span><span>IT-Richtlinien und Standards</span></div>
-      <h3 class="mini">Arbeitsweise</h3>
-      <div class="chips"><span>Zuverlässig</span><span>Strukturiert &amp; selbstständig</span><span>Serviceorientiert</span><span>Lösungsorientiert &amp; flexibel</span></div>
+      <div class="reveal">
+        <h3 class="mini">Projekt &amp; Führung</h3>
+        <div class="chips"><span>Teamleitung von Technikern und Dienstleistern</span><span>Planung, Umsetzung und Dokumentation</span><span>IT-Richtlinien und Standards</span></div>
+        <h3 class="mini">Arbeitsweise</h3>
+        <div class="chips"><span>Zuverlässig</span><span>Strukturiert &amp; selbstständig</span><span>Serviceorientiert</span><span>Lösungsorientiert &amp; flexibel</span></div>
+      </div>
     </div>
   </section>
 
-  <section id="kontakt" class="sec alt">
+  <section id="faq" class="sec alt">
+    <div class="wrap faq-in">
+      <div class="reveal">
+        <p class="kicker grad-text">FAQ</p>
+        <h2>Häufige Fragen.</h2>
+        <p class="sub">Ihre Frage ist nicht dabei? <a href="#kontakt">Schreiben Sie uns.</a></p>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Was kostet ein Projekt?</summary>
+          <p>Das hängt vom Umfang ab. Nach einem kostenlosen Erstgespräch erhalten Sie ein schriftliches Angebot, bevor wir mit der Arbeit beginnen.</p>
+        </details>
+        <details>
+          <summary>Wo sind Sie im Einsatz?</summary>
+          <p>Unser Sitz ist in Dresden. Vor Ort sind wir in Dresden und Sachsen unterwegs, für Standort- und Rollout-Projekte auch deutschlandweit. Support ist zusätzlich per Fernwartung möglich.</p>
+        </details>
+        <details>
+          <summary>Arbeiten Sie auch für kleine Unternehmen?</summary>
+          <p>Ja. Wir betreuen kleine und mittlere Unternehmen genauso wie größere Standortprojekte. Bei uns haben Sie immer einen festen Ansprechpartner.</p>
+        </details>
+        <details>
+          <summary>Wie schnell melden Sie sich?</summary>
+          <p>In der Regel innerhalb eines Werktags. Rufen Sie bei dringenden Anliegen am besten direkt an: <a href="tel:+4917631201082">0176 31201082</a>.</p>
+        </details>
+        <details>
+          <summary>Bekomme ich eine Dokumentation?</summary>
+          <p>Ja. Netzwerk- und Rollout-Projekte dokumentieren wir vollständig, zum Beispiel mit Port- und Verkabelungsplänen, Messprotokollen und einem Abschlussbericht.</p>
+        </details>
+        <details>
+          <summary>Übernehmen Sie Projekte als Subunternehmer?</summary>
+          <p>Ja. Wir unterstützen auch IT-Dienstleister und Generalunternehmer bei Rollouts, Netzwerkinstallationen und Verkabelung, einzeln oder mit Team.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" class="sec">
     <div class="wrap split">
-      <div class="contact-card">
+      <div class="contact-card reveal">
         <p class="kicker grad-text">Kontakt</p>
         <h2>Lassen Sie uns sprechen.</h2>
         <p class="muted">Schreiben Sie uns oder rufen Sie an, wir melden uns in der Regel innerhalb eines Werktags.</p>
@@ -125,7 +260,7 @@
         <p class="phones"><a href="tel:+4935120878332">0351 20878332</a><br><a href="tel:+4917631201082">0176 31201082</a> <span class="muted">(mobil)</span></p>
         <p class="muted small">Virexo Group · Schmiedeberger Straße 31 · 01277 Dresden</p>
       </div>
-      <form id="form" class="form">
+      <form id="form" class="form reveal">
         <label>Name<input name="name" required autocomplete="name"></label>
         <label>E-Mail<input name="email" type="email" required autocomplete="email"></label>
         <label>Firma (optional)<input name="firma" autocomplete="organization"></label>
@@ -140,7 +275,7 @@
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <span>© <span id="jahr">2026</span> Virexo Group</span>
+    <span>© <span id="jahr">2026</span> Virexo Group · Dresden</span>
     <nav aria-label="Rechtliches">
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
@@ -151,6 +286,30 @@
 
 <script>
 document.getElementById("jahr").textContent = new Date().getFullYear();
+
+// Handy-Menü
+var btn = document.getElementById("menuBtn"), nav = document.querySelector(".nav");
+btn.addEventListener("click", function () {
+  var open = nav.classList.toggle("open");
+  btn.setAttribute("aria-expanded", String(open));
+  btn.setAttribute("aria-label", open ? "Menü schließen" : "Menü öffnen");
+});
+document.querySelectorAll("#menu a").forEach(function (a) {
+  a.addEventListener("click", function () { nav.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); });
+});
+
+// Einblenden beim Scrollen
+var els = document.querySelectorAll(".reveal");
+if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  els.forEach(function (el, i) { el.style.transitionDelay = (i % 4) * 70 + "ms"; io.observe(el); });
+} else {
+  els.forEach(function (el) { el.classList.add("in"); });
+}
+
+// Kontaktformular
 document.getElementById("form").addEventListener("submit", function (e) {
   e.preventDefault();
   var f = new FormData(this);
