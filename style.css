@@ -60,7 +60,7 @@ h1 { font-weight: 800; font-stretch: 118%; font-size: clamp(42px, 7.6vw, 86px); 
 .cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 1px; margin-top: clamp(56px, 8vw, 88px); background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .stats div { background: var(--bg-2); padding: 22px 24px; }
-.stats b { display: block; font-size: 30px; font-weight: 800; font-stretch: 115%; letter-spacing: -.02em; }
+.stats b { display: block; font-size: clamp(20px, 2vw, 24px); line-height: 1.25; font-weight: 800; font-stretch: 115%; letter-spacing: -.02em; }
 .stats span { color: var(--steel); font-size: 15px; }
 @media (max-width: 520px) { .stats b { font-size: 22px; } .stats div { padding: 18px 20px; } }
 
